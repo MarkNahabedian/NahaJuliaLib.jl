@@ -1,3 +1,5 @@
+# Some utility functions to make it more convenient to explore the
+# type hierarchy.
 
 using InteractiveUtils
 
