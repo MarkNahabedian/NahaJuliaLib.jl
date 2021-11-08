@@ -1,5 +1,5 @@
 module NahaJuliaLib
 
-# Write your package code here.
+include("type_hierarchy.jl")
 
 end
