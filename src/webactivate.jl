@@ -23,7 +23,7 @@ end
 function webactivate(workspace::URI)
     local = mktempdir()
     for f in ["Project.toml", "Manifest.toml"]
-	from = uri_add_path(workspace, f)
+	from = resolvereference(workspace, f)
 	to = joinpath(local, f)
 	response = HTTP.request("GET", from)
 	@assert response.status == 200
