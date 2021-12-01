@@ -21,17 +21,17 @@ function webactivate(workspace::AbstractString)
 end
 
 function webactivate(workspace::URI)
-    local = mktempdir()
+    local_workspace = mktempdir()
     for f in ["Project.toml", "Manifest.toml"]
 	from = resolvereference(workspace, f)
-	to = joinpath(local, f)
+	to = joinpath(local_workspace, f)
 	response = HTTP.request("GET", from)
 	@assert response.status == 200
 	open(to, "w") do f
 	    write(f, String(response.body))
 	end
     end
-    Pkg.activate(local)
-    local
+    Pkg.activate(local_workspace)
+    local_workspace
 end
 
