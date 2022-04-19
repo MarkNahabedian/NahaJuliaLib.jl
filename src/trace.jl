@@ -1,5 +1,8 @@
 using MacroTools
 using Logging
+using Markdown
+
+export @trace
 
 """
     find_name(expr)
@@ -99,24 +102,6 @@ end)
 trace_hanoi = true
 
 hanoi(:a, :b, :c, 2)
-┌ Info: Trace Enter
-│   func = hanoi (generic function with 1 method)
-└   args = (:from, :to, :other, :count)
-┌ Info: Trace Enter
-│   func = hanoi (generic function with 1 method)
-└   args = (:from, :to, :other, :count)
-move 1 from a to c
-┌ Info: Trace Exit
-└   result = nothing
-move 1 from a to b
-┌ Info: Trace Enter
-│   func = hanoi (generic function with 1 method)
-└   args = (:from, :to, :other, :count)
-move 1 from c to b
-┌ Info: Trace Exit
-└   result = nothing
-┌ Info: Trace Exit
-└   result = nothing
 (:a, :b)
 
 ```
