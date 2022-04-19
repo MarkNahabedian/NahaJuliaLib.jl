@@ -1,6 +1,5 @@
 using MacroTools
 using Logging
-using Markdown
 
 export @trace
 
@@ -52,9 +51,17 @@ macro trace(global_flag, definition)
                 $(map(last, kwargs)...))
                 if $global_flag
                     @info("Trace Enter",
-                          func=$(pieces[:name]),
-                          args=[$(map(first, args)...)],
-                          kwargs=[$(map(first, kwargs)...)])
+                          Expr(:call, $(pieces[:name]),
+                               Expr(:parameters,
+                                    Expr(:kw,
+                                         $(map(first, kwargs)...)),
+                                    $(map(first, args)...)))
+                          #=
+                          :($$(pieces[:name])(
+                              $$(map(first, args)...);
+                              $$(map(first, kwargs)...)))
+                          =#
+                          )
                 end
                 $result = nothing
                 try
@@ -68,52 +75,4 @@ macro trace(global_flag, definition)
             end
         end)
 end
-
-
-# postwalk(rmlines, @macroexpand @trace(foo, f(x::Int, y::Float32; c::Int=3) = x + y))
-
-
-
-md"""
-
-I've not found a function tracing facility for Julia so I'm
-trying to implement a simple one.  My idea is to have a macro,
-@trace, that prefixes a method definition and alters that
-definition to start with a log message that prints the function
-and arguments and ends with a log message that prints the return
-values.  The macro also takes a global variable name as argument.
-Logging will only occur if that variable is true at execution
-time.
-
-```
-
-@trace(trace_hanoi, function hanoi(from, to, other, count)
-    if count == 1
-        println("move 1 from $from to $to")
-        return
-    else
-        hanoi(from, other, to, count - 1)
-        println("move 1 from $from to $to")
-        hanoi(other, to, from, count - 1)
-        return (from, to)   # arbitrary result to show
-    end
-end)
-
-trace_hanoi = true
-
-hanoi(:a, :b, :c, 2)
-(:a, :b)
-
-```
-
-How do I get the log to include the values of the function arguments
-rather than the names?
-
-Why is `result` always `nothing`?
-
-"""
-
-# Re arguments: the function arguments have gotten alphatized.  How do
-# we map the names from the expression to the alphatized formal
-# parameters?
 
