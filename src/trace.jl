@@ -69,7 +69,6 @@ macro trace(global_flag, definition)
     definition = longdef(definition)
     pieces = splitdef(definition)
     result = gensym("result")
-    failed = gensym("fAIlEd")
     bodyfunction = gensym("bodyfunction")
     arg = gensym("arg")
     call = gensym("call")
@@ -109,9 +108,7 @@ macro trace(global_flag, definition)
                         #=
                         Expr(:macrocall, :(@info), "Trace Exit"
                              ) =#
-                        Expr(:if, false, # Expr(:call, :(==), result, Expr(:quote, failed)),
-                             Expr(:call, println, "Trace abnornal exit"),   # this can hapen if body explicitly returns.
-                             Expr(:call, println, "Trace Exit ", result))
+                        Expr(:call, println, "Trace Exit ", result)
                         )),
               result))
 end
