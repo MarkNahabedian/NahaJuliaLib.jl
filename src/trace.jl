@@ -103,9 +103,7 @@ macro trace(global_flag, definition)
                              Expr(:call, string,
                                   Expr(:quote,
                                        Expr(:call, pieces[:name],
-                                            map(find_name, pieces[:args])...))))
-                        ),
-
+                                            map(find_name, pieces[:args])...))))),
                    Expr(:(=), result, Expr(:call, bodyfunction)),
                    Expr(:if, global_flag,
                         #=
@@ -116,45 +114,5 @@ macro trace(global_flag, definition)
                              Expr(:call, println, "Trace Exit ", result))
                         )),
               result))
-#=
-        esc(quote
-            function $(pieces[:name])(
-                $(map(last, args)...) ;
-                $(map(last, kwargs)...))
-                if $global_flag
-                    $call = if $(length(kwargs) > 0)
-                        Expr(:call, pieces[:name],
-                             Expr(:parameters,
-                                  (map(map(first, kwargs)) do $arg
-                                       Expr(:kw, :($arg), $arg)
-                                   end)...,
-                                  (map(first, args))))
-                    else
-                        Expr(:call, pieces[:name],
-                             map(first, args)...)
-                    end
-                    @info("Trace Enter", call=$call)
-                    #=
-                    @info("Trace Enter",
-                          call = $(string(
-                              Expr(:call, (pieces[:name]),
-                                   Expr(:parameters,
-                                        (map(map(first, kwargs)) do $arg
-                                            Expr(:kw, :($arg), $arg)
-                                        end)...,
-                                        (map(first, args))...)))))
-                    =#
-                end
-                $result = nothing
-                try
-                    $result = $(pieces[:body])
-                finally
-                    if $global_flag
-                        @info("Trace Exit", result=$result)
-                    end
-                end
-                $result
-            end
-        end =#
 end
 
