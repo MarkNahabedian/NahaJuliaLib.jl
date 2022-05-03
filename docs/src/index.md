@@ -44,16 +44,17 @@ end
 
 ms = MyStruct(3)
 MyStruct(3)
+```
 
+```@example
 ms.a
-3
+```
 
+```@example
 ms.b
-6
+```
 
+```@example
 propertynames(ms)
-2-element Vector{Symbol}:
- :a
- :b
 ```
 
