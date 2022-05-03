@@ -44,17 +44,11 @@ end
 
 ms = MyStruct(3)
 MyStruct(3)
-```
 
-```@example
 ms.a
-```
 
-```@example
 ms.b
-```
 
-```@example
 propertynames(ms)
 ```
 
