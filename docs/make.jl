@@ -1,9 +1,6 @@
 using Documenter
 using Pkg
-
-Pkg.add(url="../../NahaJuliaLib")
-
-makedocs(sitename="localhost")
+using NahaJuliaLib
 
 DocMeta.setdocmeta!(NahaJuliaLib, :DocTestSetup, :(using NahaJuliaLib); recursive=true)
 
