@@ -1,0 +1,4 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+NahaJuliaLib = "9569be99-1faa-4e84-9751-444b87a7f9a0"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
