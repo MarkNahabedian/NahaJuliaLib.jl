@@ -8,11 +8,12 @@
 
 export @njl_getprop
 
-```
+
+"""
     propertynames_from_val_methods(t::Type, private::Bool)
 Compute and return the `propertynames` for type `t` from
 its fields and `Val` specialized methods.
-```
+"""
 function propertynames_from_val_methods(t::Type, private::Bool)
     props = collect(fieldnames(t))
     for m in methods(Base.getproperty, [t, Any]).ms
@@ -28,11 +29,11 @@ function propertynames_from_val_methods(t::Type, private::Bool)
     props
 end
 
-```
+"""
     @njl_getprop MyStruct
 Define the methods necessary so that `Val `getproperties` of`MyStruct`
 will find `Val` specialized properties.
-```
+"""
 macro njl_getprop(structname)
     quote
         Base.getproperty(o::$(esc(structname)), prop::Symbol) =
