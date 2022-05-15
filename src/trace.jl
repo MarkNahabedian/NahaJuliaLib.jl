@@ -3,66 +3,49 @@ using Logging
 
 export @trace
 
-"""
-    find_name(expr)
-Return the variable name of a function argument or struct field
-expression.
-"""
-function find_name(expr) end
+abstract type RFTContext end
 
-find_name(s::Symbol) = s
+struct RFTFunc <: RFTContext end
+struct RFTCall <: RFTContext end
+struct RFTParam <: RFTContext end
+struct RFTKw <: RFTContext end
 
-replace_name(s::Symbol, with) = with
+rewrite_for_trace(def::Expr) =rewrite_for_trace(RFTFunc(), def)
 
-function find_name(exp::Expr)
-    @assert length(exp.args) >= 1
-    find_name(exp.args[1])
-end
+rewrite_for_trace(ctx::RFTContext, def::Expr) =
+    # Dispatch on def.head
+    rewrite_for_trace(ctx, Val(def.head), def)
 
-function replace_name(exp::Expr, with)
-    @assert length(exp.args) >= 1
-    Expr(exp.head,
-         replace_name(exp.args[1], with),
-         exp.args[2:end]...)
-end
+rewrite_for_trace(ctx::RFTFunc, head::Val{:function}, def::Expr) =
+    Expr(:quote, rewrite_for_trace(RFTCall(), def.args[1]))
 
+rewrite_for_trace(ctx::RFTCall, head::Val{:call}, expr::Expr) =
+    Expr(:call, map(expr.args) do param
+             rewrite_for_trace(RFTParam(), param)
+         end...)
 
-"""
-    functionSignature(pieces)::Expr
-Return an expression represesenting the signature (function name and
-formal parameters) of a function definition.  `pieces` is the result
-of calling MacroTools.splitdef on the function definition.
-"""
-function functionSignature(pieces)::Expr
-    function rtype()
-        if haskey(pieces, :rtype)
-            Expr(:(::),
-                 call(),
-                 pieces[:rtype])
-        else
-            call()
-        end
-    end
-    function call()
-        if length(pieces[:kwargs]) > 0
-            Expr(:foo)  # TBD
-        else
-            Expr(:call, pieces[:name],
-                 pieces[:args]...)
-        end
-    end
-    rtype()
-end
+rewrite_for_trace(ctx::RFTParam, pexp::Symbol) = Expr(:$, pexp)
 
-# We probably cant define an external function that will give the
-# function call expression because we don't have a way to get the
-# argument values.
+rewrite_for_trace(ctx::RFTContext, head::Val{Symbol("::")}, pexp::Expr) =
+    rewrite_for_trace(ctx, pexp.args[1])  # Discard the specializer
+
+rewrite_for_trace(ctx::RFTParam, head::Val{:parameters}, pexp::Expr) =
+    Expr(:parameters, map(pexp.args) do p
+             rewrite_for_trace(ctx, p)
+             end...)
+
+rewrite_for_trace(ctx::RFTParam, head::Val{:kw}, pexp::Expr) =
+    Expr(:kw,
+         rewrite_for_trace(RFTKw(), pexp.args[1]),
+         Expr(:$, pexp.args[1]))
+
+rewrite_for_trace(ctx::RFTKw, kw::Symbol) = kw
 
 
 """
     @trace(global_flag, definition)
-Cause the call arguments and return values of the definition to be
-logged if `global_flag` is true at run time.
+Cause the call arguments and return values of the function defined by
+`definition` to be logged if `global_flag` is true at run time.
 `definition` should define a method.
 """
 macro trace(global_flag, definition)
@@ -70,16 +53,6 @@ macro trace(global_flag, definition)
     pieces = splitdef(definition)
     result = gensym("result")
     bodyfunction = gensym("bodyfunction")
-    arg = gensym("arg")
-    call = gensym("call")
-    function gsarg(arg)
-        gs = find_name(arg)
-        (gs, arg)   # replace_name(arg, gs))
-    end
-    args = map(gsarg, pieces[:args])
-    kwargs = map(gsarg, pieces[:kwargs])
-    # We must suppress hygiene because the function being traced could
-    # refer to variables defined in an outer scope.
     Expr(:escape,
          Expr(definition.head,
               definition.args[1],   # function signature
@@ -88,28 +61,12 @@ macro trace(global_flag, definition)
                         Expr(:call, bodyfunction),
                         pieces[:body]),
                    Expr(:if, global_flag,
-                        #=
-                        # ERROR: LoadError: LoadError: MethodError: no method matching logmsg_code(::Module, ::String, ::Int64, ::Symbol)
-                        # Closest candidates are:
-                        # logmsg_code(::Any, ::Any, ::Any, ::Any, !Matched::Any, !Matched::Any...) at logging.jl:303
-                        Expr(:macrocall, :(@info), "Trace Enter"
-                             ) =#
-                        # This gives
-                        # (println)("Trace Enter ", (string)($(Expr(:copyast, :($(QuoteNode(:(hanoi(from, to, other, count)))))))))
-                        # but we want the values of the arguments, not their names.
                         Expr(:call, println,
                              "Trace Enter ",
-                             Expr(:call, string,
-                                  Expr(:quote,
-                                       Expr(:call, pieces[:name],
-                                            map(find_name, pieces[:args])...))))),
+                             rewrite_for_trace(definition))),
                    Expr(:(=), result, Expr(:call, bodyfunction)),
                    Expr(:if, global_flag,
-                        #=
-                        Expr(:macrocall, :(@info), "Trace Exit"
-                             ) =#
-                        Expr(:call, println, "Trace Exit ", result)
-                        )),
-              result))
+                        Expr(:call, println, "Trace Exit ", result)),
+                   result)))
 end
 
