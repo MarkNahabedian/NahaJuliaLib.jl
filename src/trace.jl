@@ -42,6 +42,13 @@ rewrite_for_trace(ctx::RFTParam, head::Val{:kw}, pexp::Expr) =
 rewrite_for_trace(ctx::RFTKw, kw::Symbol) = kw
 
 
+trace_enter(call) =
+    @info("Trace enter", call=call)
+
+trace_exit(f, result) =
+    @info("Trace exit ", func=f, result=result)
+
+
 """
     @trace(global_flag, definition)
 Cause the call arguments and return values of the function defined by
@@ -61,12 +68,12 @@ macro trace(global_flag, definition)
                         Expr(:call, bodyfunction),
                         pieces[:body]),
                    Expr(:if, global_flag,
-                        Expr(:call, println,
-                             "Trace Enter ",
+                        Expr(:call, trace_enter,
                              rewrite_for_trace(definition))),
                    Expr(:(=), result, Expr(:call, bodyfunction)),
                    Expr(:if, global_flag,
-                        Expr(:call, println, "Trace Exit ", result)),
+                        Expr(:call, trace_exit,
+                             pieces[:name], result)),
                    result)))
 end
 
