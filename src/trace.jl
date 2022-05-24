@@ -1,5 +1,6 @@
 using MacroTools
 using Logging
+using Base.Threads
 
 export @trace
 
@@ -10,7 +11,7 @@ struct RFTCall <: RFTContext end
 struct RFTParam <: RFTContext end
 struct RFTKw <: RFTContext end
 
-rewrite_for_trace(def::Expr) =rewrite_for_trace(RFTFunc(), def)
+rewrite_for_trace(def::Expr) = rewrite_for_trace(RFTFunc(), def)
 
 rewrite_for_trace(ctx::RFTContext, def::Expr) =
     # Dispatch on def.head
@@ -42,11 +43,14 @@ rewrite_for_trace(ctx::RFTParam, head::Val{:kw}, pexp::Expr) =
 rewrite_for_trace(ctx::RFTKw, kw::Symbol) = kw
 
 
-trace_enter(call) =
-    @info("Trace enter", call=call)
+trace_enter(id, fcall) =
+    @info("Trace enter", id=id, fcall=string(fcall))
 
-trace_exit(f, result) =
-    @info("Trace exit ", func=f, result=result)
+trace_exit(id, result) =
+    @info("Trace exit", id=id, result=result)
+
+
+_trace_counter = Threads.Atomic{Int}(1)
 
 
 """
@@ -59,6 +63,7 @@ macro trace(global_flag, definition)
     definition = longdef(definition)
     pieces = splitdef(definition)
     result = gensym("result")
+    this_trace = gensym("this_trace")
     bodyfunction = gensym("bodyfunction")
     Expr(:escape,
          Expr(definition.head,
@@ -68,12 +73,15 @@ macro trace(global_flag, definition)
                         Expr(:call, bodyfunction),
                         pieces[:body]),
                    Expr(:if, global_flag,
-                        Expr(:call, trace_enter,
-                             rewrite_for_trace(definition))),
+                        Expr(:block,
+                             Expr(Symbol("="), this_trace,
+                                  Expr(:call, Base.Threads.atomic_add!,
+                                       :(NahaJuliaLib._trace_counter), 1)),
+                             Expr(:call, :(NahaJuliaLib.trace_enter), this_trace,
+                                  rewrite_for_trace(definition)))),
                    Expr(:(=), result, Expr(:call, bodyfunction)),
                    Expr(:if, global_flag,
-                        Expr(:call, trace_exit,
-                             pieces[:name], result)),
+                        Expr(:call, :(NahaJuliaLib.trace_exit), this_trace, result)),
                    result)))
 end
 
