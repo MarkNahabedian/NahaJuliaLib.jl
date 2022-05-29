@@ -43,11 +43,20 @@ rewrite_for_trace(ctx::RFTParam, head::Val{:kw}, pexp::Expr) =
 rewrite_for_trace(ctx::RFTKw, kw::Symbol) = kw
 
 
+const TRACE_ENTER = "Trace enter"
+const TRACE_EXIT = "Trace exit"
+
 trace_enter(id, fcall) =
-    @info("Trace enter", id=id, fcall=string(fcall))
+    @info(TRACE_ENTER,
+          id=id,
+          threadid=Threads.threadid(),
+          fcall=string(fcall))
 
 trace_exit(id, result) =
-    @info("Trace exit", id=id, result=result)
+    @info(TRACE_EXIT,
+          id=id,
+          threadid=Threads.threadid(),
+          result=result)
 
 
 _trace_counter = Threads.Atomic{Int}(1)
