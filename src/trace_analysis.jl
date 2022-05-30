@@ -1,7 +1,7 @@
 using DataStructures
 using VectorLogging
 
-export analyze_traces, show_trace
+export TraceRecord, analyze_traces, show_trace
 
 
 mutable struct TraceRecord
@@ -38,6 +38,14 @@ struct StackEntry
         new(enter, Vector{TraceRecord}())
 end
 
+"""
+    analyze_traces(log::VectorLogger)
+Given a log containinig log records produced by `@trace`, return a
+vector of `TraceRecord`s.  Each of those `TraceRecord`s is the root of
+a tree of `TraceRecord`s that represent the call tree.
+
+Use `show_trace` to print the call hierarchy in a human readable form.
+"""
 function analyze_traces(log::VectorLogger)::Vector{TraceRecord}
     result = Vector{TraceRecord}()
     # stacks is indexed by the threadid of a log entry:
@@ -96,6 +104,10 @@ function analyze_traces(log::VectorLogger)::Vector{TraceRecord}
 end
 
 
+"""
+    show_trace(trace::TraceRecord)
+Print the specified `TraceRecord` hierarchy in a human readable form.
+"""
 show_trace(trace::TraceRecord) = show_trace(Base.stdout, trace)
 
 function show_trace(io::IO, trace::TraceRecord)

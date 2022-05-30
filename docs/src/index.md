@@ -52,3 +52,47 @@ ms.b
 propertynames(ms)
 ```
 
+## Tracing functions
+
+Sometimes when debugging one wants to track the call and return of
+certain specified functions.
+
+```@docs
+@trace
+analyze_traces
+show_trace
+```
+
+```@example
+using Logging
+using VectorLogging
+using NahaJuliaLib
+
+@trace(trace_hanoi,
+       function hanoi(from, to, other, count)
+           if count == 0
+               return nothing
+           else
+               hanoi(from, other, to, count - 1)
+               println("move 1 from $from to $to")
+               hanoi(other, to, from, count - 1)
+               return (from, to)   # arbitrary result to show
+           end
+       end
+       )
+
+trace_hanoi = true
+
+logger = VectorLogger()
+
+with_logger(logger) do
+    hanoi(:a, :b, :c, 3)
+end
+
+begin
+    traces = analyze_traces(logger)
+    show_trace(traces[1])
+end
+
+
+```
