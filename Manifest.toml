@@ -74,7 +74,9 @@ uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
 [[MacroTools]]
 deps = ["Markdown", "Random"]
-path = "C:\\Users\\Mark Nahabedian\\.julia\\dev\\MacroTools"
+git-tree-sha1 = "465a4803356bcb11f6eb97df992680f13a9ba776"
+repo-rev = "master"
+repo-url = "https://github.com/FluxML/MacroTools.jl"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 version = "0.5.9"
 
