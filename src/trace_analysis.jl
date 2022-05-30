@@ -95,9 +95,12 @@ function analyze_traces(log::VectorLogger)::Vector{TraceRecord}
     result
 end
 
-function show_trace(trace::TraceRecord)
+
+show_trace(trace::TraceRecord) = show_trace(Base.stdout, trace)
+
+function show_trace(io::IO, trace::TraceRecord)
     function st(trace, level)
-        println(repeat("  ", level),
+        println(io, repeat("  ", level),
                 trace.enter.keys[:fcall],
                 if trace.exit == nothing
                     ""
