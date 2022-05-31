@@ -27,7 +27,7 @@ A struct might have fields, which are exposed as properties.  The
 @njl_getprop
 ```
 
-Here'sa trivial, but illustrative example:
+Here's a trivial, but illustrative example:
 
 ```@example
 using NahaJuliaLib
