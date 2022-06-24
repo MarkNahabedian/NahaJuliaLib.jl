@@ -1,4 +1,4 @@
-# Rather than use a condirional tree to determine which peoperty is
+# Rather than use a conditional tree to determine which peoperty is
 # being queried by `getproperty`, we can method specialize on Val types.
 # We should then be able to automate `propertynames` based on the
 # defined methods.
@@ -31,8 +31,8 @@ end
 
 """
     @njl_getprop MyStruct
-Define the methods necessary so that `Val `getproperties` of`MyStruct`
-will find `Val` specialized properties.
+Define the methods necessary so that `Val` specialized `getproperty`
+ methods for `MyStruct` will find `Val` specialized properties.
 """
 macro njl_getprop(structname)
     quote
