@@ -13,7 +13,7 @@ end
 
 
 istrace(le::VectorLogging.LogEntry) =
-    le._module == NahaJuliaLib &&
+    le._module == :NahaJuliaLib &&
     le.group == :trace
 
 istraceenter(le::VectorLogging.LogEntry) =
