@@ -46,7 +46,7 @@ a tree of `TraceRecord`s that represent the call tree.
 
 Use `show_trace` to print the call hierarchy in a human readable form.
 """
-function analyze_traces(log::VectorLogger)::Vector{TraceRecord}
+function analyze_traces(log)::Vector{TraceRecord}
     result = Vector{TraceRecord}()
     # stacks is indexed by the threadid of a log entry:
     stacks = Dict{Int, Stack{StackEntry}}()
@@ -59,7 +59,7 @@ function analyze_traces(log::VectorLogger)::Vector{TraceRecord}
             stack
         end
     end
-    for le in log.log
+    for le::LogEntry in log
         if !istrace(le)
             continue
         end
