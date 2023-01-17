@@ -2,6 +2,7 @@
 # type hierarchy.
 
 using InteractiveUtils
+using Base.Iterators
 
 export allsubtypes, showsubtypes, pedigree
 
@@ -39,5 +40,29 @@ function pedigree(t::Type, result=Vector{Type}())
         pedigree(supertype(t), result)
     end
     result
+end
+
+
+"""
+    common_supertypes(types...)
+
+Return the closest common supertypes of all of the specified types.
+"""
+function common_supertypes(types::Type...)
+    # get vectors of supertypes (most specific first):
+    inheritance = pedigree.(types)
+    # Reverse iterator for each vector:
+    iterators = Stateful.(reverse.(inheritance))
+    # Take elements from each iterator until there's a difference
+    common = nothing
+    while true
+        current = first.(iterate.(iterators))
+        if all(x -> x == current[1], current)
+            common = current[1]
+        else
+            break
+        end
+    end
+    common
 end
 
