@@ -7,6 +7,10 @@ include("trace.jl")
 include("trace_analysis.jl")
 # include("export_subtypes.jl")
 include("package_utils.jl")
-include("my_package_template.jl")
+
+# Fails in CI workflow.  Only needed interactively on local host.
+if isinteractive()
+    include("my_package_template.jl")
+end
 
 end
