@@ -5,5 +5,7 @@ include("uri_utils.jl")
 include("properties.jl")
 include("trace.jl")
 include("trace_analysis.jl")
+include("export_subtypes.jl")
+include("package_utils.jl")
 
 end
