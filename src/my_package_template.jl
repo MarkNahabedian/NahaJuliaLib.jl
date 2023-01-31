@@ -1,3 +1,6 @@
+using PkgTemplates
+
+export MY_PACKAGE_TEMPLATE
 
 NEWEST_PKGTEMPLATES, _ = newest_instantiated_version("PkgTemplates")
 
@@ -32,7 +35,7 @@ MY_PACKAGE_TEMPLATE = Template(;
                     badge_off = DataType[]
                     ),
              SrcDir(
-                 file = "NEWEST_PKGTEMPLATES/templates/src/module.jl"
+                 file = joinpath(NEWEST_PKGTEMPLATES, "templates/src/module.jl")
              ),
              TagBot(
                  file = joinpath(NEWEST_PKGTEMPLATES,
