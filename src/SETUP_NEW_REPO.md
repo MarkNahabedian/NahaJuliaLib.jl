@@ -24,3 +24,12 @@ Make sure to give it write permission.  Give it the name `DOCUMENTER_KEY`.
 
 Under `settings / deploy keys / add deploy key` and paste the public key b=value.
 
+
+## Put in Compat Entries Before CompatHelper Can Carpet Bomb You With PRs
+
+Perhaps by calling
+
+```
+NahaJuliaLib.add_compat_entries!("Project.toml")
+```
+
