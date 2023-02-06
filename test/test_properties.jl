@@ -15,5 +15,8 @@ end
     @test ms.a == 3
     @test ms.b == 6
     @test Set(propertynames(ms)) == Set([:a, :b])
+    @test hasproperty(ms, :a)
+    @test hasproperty(ms, :b)
+    @test !hasproperty(ms, :c)
 end
 

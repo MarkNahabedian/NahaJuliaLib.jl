@@ -42,6 +42,8 @@ macro njl_getprop(structname)
             getfield(o, T)
         Base.propertynames(o::$(esc(structname)), private::Bool=false) =
             propertynames_from_val_methods(typeof(o), private)
+        Base.hasproperty(o::$(esc(structname)), prop::Symbol) =
+            prop in propertynames_from_val_methods(typeof(o), true)
     end
 end
 
