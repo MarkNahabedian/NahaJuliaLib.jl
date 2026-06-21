@@ -29,3 +29,7 @@ A collection of small utilities that I wish were readily available in
 Julia but that I've not found elsewhere.
 
 See the documentation.
+
+NOTE that the functionality provided in `src/properties.jl` is now
+available from the registered package `PropertyMethods.jl`.
+
